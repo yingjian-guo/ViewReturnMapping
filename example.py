@@ -16,6 +16,12 @@ steel.set_yield_function('vonMises', sigma_y0 = 240e6)
 # for Linear hardening only H is needed: sigma_y = sigma_y0 + H*epbar
 # for Swift hardening, define e_0 and n: sigma_y = K*(e_0 + epbar)^n, with K = sigma_y0/(e_0^n)
 steel.set_hardening_law('Swift', n=0.15, e_0=0.0005)
+# Example using Hill48 yield function
+aluminum = material.isotropic(E=210e9, mu=0.3)
+aluminum.set_yield_function(
+    'Hill48', sigma_y0=240e6, F=0.5, G=1.0, H=0.5, N=1.5
+)
+aluminum.set_hardening_law('Swift', n=0.15, e_0=0.0005)
 # Define a stress tensor (must be numpy array)
 import numpy as np
 stress = 1.0e6 * np.array([[140, 120, 0],
@@ -23,6 +29,7 @@ stress = 1.0e6 * np.array([[140, 120, 0],
 	                       [0  ,0   ,20]])
 # Get equivalent stress for this stress state
 print(steel.get_equiv_stress(stress))
+print(aluminum.get_equiv_stress(stress))
 # Set this stress state as the initial material state
 steel.set_initial_stress(1e6*np.array([[140,120,0],[120,40,0],[0,0,20]]))
 # and set the initial accumulated plastic strain as zero

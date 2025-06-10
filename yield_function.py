@@ -49,6 +49,32 @@ class vonMises(yield_functions):
         f = sigma_eq - sigma_y
         return f
 
+
+class Hill48(yield_functions):
+    """Hill48 anisotropic yield criterion for plane stress."""
+    def __init__(self, kwargs):
+        self.sigma_y0 = kwargs['sigma_y0']
+        self.F = kwargs['F']
+        self.G = kwargs['G']
+        self.H = kwargs['H']
+        self.N = kwargs['N']
+
+    def get_equivalent_stress(self, Cauchy):
+        sigma_xx = Cauchy[0, 0]
+        sigma_yy = Cauchy[1, 1]
+        tau_xy = Cauchy[0, 1]
+        phi = (
+            self.F * sigma_yy ** 2
+            + self.G * sigma_xx ** 2
+            + self.H * (sigma_xx - sigma_yy) ** 2
+            + 2.0 * self.N * tau_xy ** 2
+        )
+        return np.sqrt(phi)
+
+    def get_yield_function_value(self, Cauchy, sigma_y):
+        sigma_eq = self.get_equivalent_stress(Cauchy)
+        return sigma_eq - sigma_y
+
     def plot_function(self, the_axes, sigma_y, color = None):
         """Plot von Mises yield function in the deviatoric plane.
            It is a circumference of radius sqrt(2/3)*sigma_y."""
@@ -142,4 +168,7 @@ class vonMises(yield_functions):
         return Cauchy, epbar, Cauchy_trial
 
 # Define the dictionary that relates yield function names to their sub-class
-link_name = {'vonMises': vonMises}
+link_name = {
+    'vonMises': vonMises,
+    'Hill48': Hill48,
+}
